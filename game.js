@@ -20,21 +20,13 @@ class Grid {
         this.emptyNodeRadius = 10;
         this.offsetX = width/2 - (this.width-1)/2 * this.nodeSize;
         this.offsetY = height/2 - (this.height-1)/2 * this.nodeSize;
-        this.selectedNode = null;
+        this.selectedMagnet = null;
 
         this.populate();
 
         for (let i=0; i<randomInt(20, 60); i++) {
             this.setMagnet(randomInt(0, this.width-1), randomInt(0, this.height-1));
         }
-
-        // this.setMagnet(1,2);
-        // this.setMagnet(2,2);
-        // this.setMagnet(3,2);
-        // this.setMagnet(2,4);
-
-        // this.setMagnet(2,3);
-        // this.setMagnet(3,2);
     }
     
     populate() {
@@ -87,7 +79,7 @@ class Grid {
     }
 
     draw() {
-        this.selectedNode = null;
+        this.selectedMagnet = null;
         translate(this.offsetX, this.offsetY);
 
         for (let y=0; y<this.height; y++) {
@@ -281,10 +273,11 @@ class Magnet {
         this.grid = grid
         this.x = x;
         this.y = y;
-        this.activeRadius = 30;
-        this.inActiveRadius = 10;
         this.strength = 1;
         this.isActive = Boolean(randomInt(0, 1));
+        this.activeRadius = 30;
+        this.inActiveRadius = 10;
+        this.radius = this.inActiveRadius;
     }
 
     getNeighbours() {
@@ -317,19 +310,25 @@ class Magnet {
     draw() {
         let renderX = this.x * this.grid.nodeSize;
         let renderY = this.y * this.grid.nodeSize;
-        let renderRadius = this.isActive ? this.activeRadius : this.inActiveRadius;
         let gridCenterOffset = this.grid.nodeSize/2;
+        let targetRadius = this.isActive ? this.activeRadius : this.inActiveRadius;
 
-        // console.log(this.grid.selectedNode)
         if (onHover(renderX + this.grid.offsetX - gridCenterOffset, renderY + this.grid.offsetY - gridCenterOffset, this.grid.nodeSize, this.grid.nodeSize)) {
-            this.grid.selectedNode = this;
-            renderRadius += 10;
+            this.grid.selectedMagnet = this;
+            targetRadius += 10;
             cursor("pointer");
         }
 
+        // Update radius animation
+        let d = targetRadius - this.radius;
+        this.radius = (Math.abs(d) < 0.01) ? targetRadius : this.radius + d * 0.1;
+
+        // Draw magnet
         this.isActive ? fill("#f28400") : fill("#cccccc");
-        circle(renderX, renderY, renderRadius);
+        circle(renderX, renderY, this.radius);
         fill(255);
+
+        // Debugging
         // textAlign(CENTER, CENTER);
         // text(this.getStrength(), renderX, renderY);
     }
@@ -357,8 +356,8 @@ function draw() {
 }
 
 function mouseClicked() {
-    if (grid.selectedNode) {
-        grid.selectedNode.isActive = grid.selectedNode.isActive ? false : true;
+    if (grid.selectedMagnet) {
+        grid.selectedMagnet.isActive = grid.selectedMagnet.isActive ? false : true;
         grid.bars.forEach(item => {
             item.attract(0);
         });
