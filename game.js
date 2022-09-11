@@ -180,50 +180,50 @@ class Bar {
         if (magDirections.length) {
             this.isAttracted = true;
 
-            let maxDirectionValues = [];
-            let max = [{strength: 0}];
+            let strongestDirections = [];
+            let strongestMagnets = [{strength: 0}];
 
             magDirections.forEach(item => {
                 // Find the strongest direction
-                if (item.strength > max[0].strength) {
-                    max = [item];
-                } else if (item.strength == max[0].strength) {
-                    max.push(item);
+                if (item.strength > strongestMagnets[0].strength) {
+                    strongestMagnets = [item];
+                } else if (item.strength == strongestMagnets[0].strength) {
+                    strongestMagnets.push(item);
                 }
             });
 
-            max.forEach(item => {
-                maxDirectionValues.push(item.direction);
+            strongestMagnets.forEach(item => {
+                strongestDirections.push(item.direction);
             })
 
-            if (max.length == 1) {
+            if (strongestMagnets.length == 1) {
                 // If there is only one strongest direction
                 // Set the rotation to point to that magnet
                 if (option == 0) {
-                    this.rotation = max[0].direction;
+                    this.rotation = strongestMagnets[0].direction;
                 } else {
-                    this.targetRotation = max[0].direction;
+                    this.targetRotation = strongestMagnets[0].direction;
                 }
             } else {
                 // If Two or more directions with equal (max) strenghs
                 // Calculate an average direction
 
-                let rotation = max.reduce((a, b) => a + b.direction, 0) / max.length;
+                let rotation = strongestMagnets.reduce((a, b) => a + b.direction, 0) / strongestMagnets.length;
 
                 // If direction includes a decimal (ie half way between two directions)
                 if (rotation % 1 !== 0) {
-                    max.forEach((item, index) => {
-                        let oppositeNodeIndex = max.indexOf([-item.offset.x, -item.offset.y]);
+                    strongestMagnets.forEach((item, index) => {
+                        let oppositeNodeIndex = strongestMagnets.indexOf([-item.offset.x, -item.offset.y]);
                         if (oppositeNodeIndex > -1)  {
                             map.splice(index, 1);
                             map.splice(oppositeNodeIndex, 1);
                         }
                     })
-                    rotation = max[0].direction;
+                    rotation = strongestMagnets[0].direction;
                 }
 
                 // Reverse direction
-                if (maxDirectionValues.indexOf(rotation) === -1 && maxDirectionValues.indexOf(rotation-1) === -1 && maxDirectionValues.indexOf(rotation+1) === -1) {
+                if (strongestDirections.indexOf(rotation) === -1 && strongestDirections.indexOf(rotation-1) === -1 && strongestDirections.indexOf(rotation+1) === -1) {
                     rotation = (rotation + 4) % 8;
                 }
 
