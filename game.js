@@ -20,10 +20,11 @@ class Grid {
         this.bars = [];
         this.magnets = [];
         this.emptyNodeRadius = 10;
-        this.offsetX = width/2 - (this.width-1)/2 * this.nodeSize;
-        this.offsetY = height/2 - (this.height-1)/2 * this.nodeSize;
+        this.offsetX = 0;
+        this.offsetY = 0;
         this.selectedMagnet = null;
 
+        this.calcOffset();
         this.populate();
 
         for (let i=0; i<randomInt(20, 60); i++) {
@@ -31,6 +32,11 @@ class Grid {
         }
     }
     
+    calcOffset() {
+        this.offsetX = width/2 - (this.width-1)/2 * this.nodeSize;
+        this.offsetY = height/2 - (this.height-1)/2 * this.nodeSize;
+    }
+
     populate() {
         for (let y=0; y<this.height; y++) {
             this.nodes.push([]);
@@ -367,4 +373,5 @@ function mouseClicked() {
 
 function windowResized() {
     resizeCanvas(windowWidth, windowHeight);
+    grid.calcOffset();
 }
