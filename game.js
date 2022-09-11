@@ -180,10 +180,9 @@ class Bar {
         if (magDirections.length) {
             this.isAttracted = true;
 
-            let nearDirections = [];
             let allDirections = [];
-
             let max = [{strength: 0}];
+
             magDirections.forEach(item => {
                 // Find the strongest direction
                 if (item.strength > max[0].strength) {
@@ -191,14 +190,11 @@ class Bar {
                 } else if (item.strength == max[0].strength) {
                     max.push(item);
                 }
-
-                // Check if any magnets are directly horizontal / vertical
-                if ([0, 2, 4, 6].indexOf(item.direction) > -1) {
-                    nearDirections.push(item.direction);
-                }
-
-                allDirections.push(item.direction);
             });
+
+            max.forEach(item => {
+                allDirections.push(item.direction);
+            })
 
             if (max.length == 1) {
                 // If there is only one strongest direction
