@@ -255,7 +255,7 @@ class Bar {
     draw() {
         // Draw target bar
         if (this.targetRotation) {
-            this.drawBar(this.toAngle(this.targetRotation), "#f28400", "#f28400");
+            this.drawBar(this.toAngle(this.targetRotation), "#cccccc", "#cccccc");
         }
 
         // Update angle animation
