@@ -200,17 +200,17 @@ class Bar {
 
                 let rotation = max.reduce((a, b) => a + b.direction, 0) / max.length;
 
-                // Reverse direction
-                if (allDirections.indexOf(rotation) === -1 && allDirections.indexOf(rotation-1) === -1 && allDirections.indexOf(rotation+1) === -1) {
-                    rotation = (rotation + 4) % 8;
-                }
-
                 // If direction includes a decimal (ie half way between two directions)
                 if (rotation % 1 !== 0) {
                     // Find the closest horizontal / vertical direction where there is a magnet
                     rotation = nearDirections.reduce(function(prev, curr) {
                         return (Math.abs(curr - rotation) < Math.abs(prev - rotation) ? curr : prev);
                     });
+                }
+
+                // Reverse direction
+                if (allDirections.indexOf(rotation) === -1 && allDirections.indexOf(rotation-1) === -1 && allDirections.indexOf(rotation+1) === -1) {
+                    rotation = (rotation + 4) % 8;
                 }
 
                 // Set rotation
