@@ -1,3 +1,5 @@
+var DEBUG = false;
+
 function randomInt(min, max) {
     return Math.floor(random(min, max+1));
 }
@@ -50,21 +52,6 @@ class Grid {
         return undefined;
     }
 
-    // removeNode(x, y) {
-    //     let node = this.locate(x, y);
-        
-    //     // Remove item from this.bars / this.magnets
-    //     let array = this.bars;
-    //     if (node && node.constructor.name == "Magnet") {
-    //         array = this.magnets
-    //     }
-    //     let index = array.indexOf(node);
-    //     array.splice(index, 1);
-
-    //     // Remove node from grid
-    //     this.nodes[y][x] = null;
-    // }
-
     deactivateMagnets() {
         this.magnets.forEach(item => {
             item.isActive = false;
@@ -102,6 +89,7 @@ class Bar {
         this.rotation = this.initialRotation;
         this.targetRotation = null;
         this.angle = this.toAngle(this.rotation);
+        this.isAttracted = false;
     }
 
     toAngle(angle) {
@@ -156,16 +144,21 @@ class Bar {
                         direction = 7;
                         break;
                 }
-
+                let strength = item.getStrength();
+                if ([1, 3, 5, 7].indexOf(direction) > -1) {
+                    strength -= 0.25;
+                }
                 magDirections.push({
                     offset: offset,
                     direction: direction,
-                    strength: item.getStrength(),
+                    strength: strength,
                 });
             }
         });
 
         if (magDirections.length) {
+            this.isAttracted = true;
+
             let nearDirections = [];
             let allDirections = [];
 
@@ -202,10 +195,14 @@ class Bar {
 
                 // If direction includes a decimal (ie half way between two directions)
                 if (rotation % 1 !== 0) {
-                    // Find the closest horizontal / vertical direction where there is a magnet
-                    rotation = nearDirections.reduce(function(prev, curr) {
-                        return (Math.abs(curr - rotation) < Math.abs(prev - rotation) ? curr : prev);
-                    });
+                    max.forEach((item, index) => {
+                        let oppositeNodeIndex = max.indexOf([-item.offset.x, -item.offset.y]);
+                        if (oppositeNodeIndex > -1)  {
+                            map.splice(index, 1);
+                            map.splice(oppositeNodeIndex, 1);
+                        }
+                    })
+                    rotation = max[0].direction;
                 }
 
                 // Reverse direction
@@ -220,7 +217,9 @@ class Bar {
                     this.targetRotation = rotation;
                 }
             }
+
         } else {
+            this.isAttracted = false;
             this.rotation = this.initialRotation;
         }
     }
@@ -228,15 +227,16 @@ class Bar {
     drawBar(angle, pointerColor, bg) {
         let renderX = this.x * this.grid.nodeSize;
         let renderY = this.y * this.grid.nodeSize;
-        // rotation = rotationToAngle(this.rotation);
 
         let circleRadius = this.width/2;
         let circleYOffset = this.height/2;
 
         translate(renderX, renderY);
-        // Debugging
-        // fill(200);
-        // circle(0,0, this.grid.nodeSize);
+
+        if (DEBUG) {
+            fill(200);
+            circle(0,0, this.grid.nodeSize);
+        }
         
         fill(bg);
         rotate(angle);
@@ -244,7 +244,7 @@ class Bar {
 
 
         // Draw pointer
-        fill(pointerColor);
+        fill((DEBUG && this.isAttracted) ? "#f28400" : pointerColor);
         circle(0, 0-circleYOffset+circleRadius, circleRadius);
 
         // Reset rotation and translation
@@ -328,9 +328,10 @@ class Magnet {
         circle(renderX, renderY, this.radius);
         fill(255);
 
-        // Debugging
-        // textAlign(CENTER, CENTER);
-        // text(this.getStrength(), renderX, renderY);
+        if (DEBUG) {
+            textAlign(CENTER, CENTER);
+            text(this.getStrength(), renderX, renderY);
+        }
     }
 }
 
