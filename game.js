@@ -180,7 +180,7 @@ class Bar {
         if (magDirections.length) {
             this.isAttracted = true;
 
-            let allDirections = [];
+            let maxDirectionValues = [];
             let max = [{strength: 0}];
 
             magDirections.forEach(item => {
@@ -193,7 +193,7 @@ class Bar {
             });
 
             max.forEach(item => {
-                allDirections.push(item.direction);
+                maxDirectionValues.push(item.direction);
             })
 
             if (max.length == 1) {
@@ -223,7 +223,7 @@ class Bar {
                 }
 
                 // Reverse direction
-                if (allDirections.indexOf(rotation) === -1 && allDirections.indexOf(rotation-1) === -1 && allDirections.indexOf(rotation+1) === -1) {
+                if (maxDirectionValues.indexOf(rotation) === -1 && maxDirectionValues.indexOf(rotation-1) === -1 && maxDirectionValues.indexOf(rotation+1) === -1) {
                     rotation = (rotation + 4) % 8;
                 }
 
