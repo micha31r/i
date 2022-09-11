@@ -16,6 +16,14 @@ class Grid {
         for (let i=0; i<randomInt(1, 5); i++) {
             this.setMagnet(randomInt(0, this.width-1), randomInt(0, this.height-1));
         }
+
+        // this.setMagnet(1,2);
+        // this.setMagnet(2,2);
+        // this.setMagnet(3,2);
+        // this.setMagnet(2,4);
+
+        // this.setMagnet(2,3);
+        // this.setMagnet(3,2);
     }
     
     populate() {
@@ -67,8 +75,9 @@ class Bar {
         this.y = y;
         this.width = 20;
         this.height = 60;
+        this.isAttracted = false;
         // 8 rotations: 0(North) - 7 clockwise
-        this.rotation = randomInt(0, 7);
+        this.rotation = 0;
         this.targetRotation = null;
     }
 
@@ -86,8 +95,8 @@ class Bar {
     }
 
     attract() {
-        let rotation = 0;
-        let magnetCount = 0;
+        // let rotation = 0;
+        // let magnetCount = 0;
         let magDirections = [];
 
         let nodeList = this.getNeighbours();
@@ -121,14 +130,64 @@ class Bar {
                         direction = 7;
                         break;
                 }
-                rotation += direction;
-                magDirections.push(direction);
-                magnetCount++;
+                magDirections.push({
+                    offset: offset,
+                    direction: direction,
+                    strength: item.getStrength(),
+                });
             }
         });
 
-        if (magnetCount) {
+        if (magDirections.length) {
+            // Find the strongest direction
+
+            let nearDirections = [];
+
+            let allDirections = [];
+
+            let max = [{strength: 0}];
+            magDirections.forEach(item => {
+                if (item.strength > max[0].strength) {
+                    max = [item];
+                } else if (item.strength == max[0].strength) {
+                    max.push(item);
+                }
+
+                if ([0, 2, 4, 6].indexOf(item.direction) > -1) {
+                    nearDirections.push(item.direction);
+                }
+                allDirections.push(item.direction);
+            });
+
+            if (max.length == 1) {
+                this.rotation = max[0].direction;
+            } else { // Two or more directions with equal (max) strenghs
+                let totalRotation = max.reduce((a, b) => a + b.direction, 0) / max.length;
+                // console.log(totalRotation)
+
+                if (allDirections.indexOf(totalRotation) === -1 && allDirections.indexOf(totalRotation-1) === -1 && allDirections.indexOf(totalRotation+1) === -1) {
+                    totalRotation = (totalRotation + 4) % 8;
+                }
+
+                if (totalRotation % 1 !== 0) {
+                    // let nearDirections = [0, 2, 4, 6].filter(v => magDirections.includes(v));
+                    totalRotation = nearDirections.reduce(function(prev, curr) {
+                        return (Math.abs(curr - totalRotation) < Math.abs(prev - totalRotation) ? curr : prev);
+                    });
+                }
+                this.rotation = totalRotation;
+            }
+            this.isAttracted = true;
+        }
+
+
+
+        /*if (magnetCount) {
             let totalRotation = rotation / magnetCount;
+
+            // if (magDirections.indexOf(totalRotation) === -1 && magDirections.indexOf(totalRotation-1) === -1 && magDirections.indexOf(totalRotation+1) === -1) {
+            //     totalRotation = (totalRotation + 4) % 8;
+            // }
 
             if (totalRotation % 1 !== 0) {
                 let nearDirections = [0, 2, 4, 6].filter(v => magDirections.includes(v));
@@ -137,7 +196,8 @@ class Bar {
                 });
             }
             this.rotation = totalRotation;
-        }
+            this.isAttracted = true;
+        }*/
     }
 
     setRotation(n) {
@@ -158,8 +218,12 @@ class Bar {
         rotate(rotation);
         fill(0);
         rect(0,0, this.width, this.height, 20);
-        fill(255);
-        // circle(0, 0-circleYOffset+circleRadius, circleRadius);
+        if (this.isAttracted) {
+            fill("#f28400")
+        } else {
+            fill(255);
+        }
+        circle(0, 0-circleYOffset+circleRadius, circleRadius);
         // Reset rotation and translation
         rotate(-rotation);
         translate(-renderX, -renderY);
@@ -172,6 +236,34 @@ class Magnet {
         this.x = x;
         this.y = y;
         this.radius = 30;
+        this.strength = 1;
+    }
+
+    getNeighbours() {
+        let nodeList = [];
+        let relativePositions = [[0,-1],[1,-1],[1,0],[1,1],[0,1],[-1,1],[-1,0],[-1,-1]];
+        relativePositions.forEach(pos => {
+            let absolutePosition = [this.x + pos[0], this.y + pos[1]];
+            let node = this.grid.locate(...absolutePosition);
+            if (node) {
+                nodeList.push(node);
+            }
+        });
+        return nodeList;
+    }
+
+    getStrength() {
+        let strength = this.strength;
+        let nodeList = this.getNeighbours();
+        nodeList.forEach(item => {
+            if (item.constructor.name === "Magnet") {
+                // Only combine strenth if they are vertical / horizontal neighbours
+                if (Math.abs((item.x - this.x)) + Math.abs((item.y - this.y)) == 1) {
+                    strength += item.strength;
+                }
+            }
+        });
+        return strength;
     }
 
     draw() {
@@ -179,6 +271,9 @@ class Magnet {
         let renderY = this.y * this.grid.nodeSize;
         fill("#f28400");
         circle(renderX, renderY, this.radius);
+        fill(255);
+        textAlign(CENTER, CENTER);
+        text(this.getStrength(), renderX, renderY);
     }
 }
 
