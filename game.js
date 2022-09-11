@@ -2,6 +2,13 @@ function randomInt(min, max) {
     return Math.floor(random(min, max+1));
 }
 
+function onHover(x, y, w, h) {
+    if (mouseX >= x && mouseX <= (x + w) && mouseY >= y && mouseY <= (y + h)) {
+        return true;
+    }
+    return false;
+}
+
 class Grid {
     constructor(w, h) {
         this.width = w;
@@ -10,10 +17,14 @@ class Grid {
         this.nodes = [];
         this.bars = [];
         this.magnets = [];
+        this.emptyNodeRadius = 10;
+        this.offsetX = width/2 - (this.width-1)/2 * this.nodeSize;
+        this.offsetY = height/2 - (this.height-1)/2 * this.nodeSize;
+        this.selectedNode = null;
 
         this.populate();
 
-        for (let i=0; i<randomInt(1, 5); i++) {
+        for (let i=0; i<randomInt(20, 60); i++) {
             this.setMagnet(randomInt(0, this.width-1), randomInt(0, this.height-1));
         }
 
@@ -47,6 +58,27 @@ class Grid {
         return undefined;
     }
 
+    // removeNode(x, y) {
+    //     let node = this.locate(x, y);
+        
+    //     // Remove item from this.bars / this.magnets
+    //     let array = this.bars;
+    //     if (node && node.constructor.name == "Magnet") {
+    //         array = this.magnets
+    //     }
+    //     let index = array.indexOf(node);
+    //     array.splice(index, 1);
+
+    //     // Remove node from grid
+    //     this.nodes[y][x] = null;
+    // }
+
+    deactivateMagnets() {
+        this.magnets.forEach(item => {
+            item.isActive = false;
+        })
+    }
+
     locate(x, y) {
         if ((0 <= x && x < this.width) && (0 <= y && y < this.height)) {
             return this.nodes[y][x];
@@ -55,14 +87,12 @@ class Grid {
     }
 
     draw() {
-        translate(width/2 - (this.width-1)/2 * this.nodeSize, height/2 - (this.height-1)/2 * this.nodeSize);
+        this.selectedNode = null;
+        translate(this.offsetX, this.offsetY);
+
         for (let y=0; y<this.height; y++) {
             for (let x=0; x<this.width; x++) {
-                if (this.nodes[y][x] === 0) {
-                    circle(x * this.nodeSize, y * this.nodeSize, 10);
-                } else {
-                    this.nodes[y][x].draw();
-                }
+                this.nodes[y][x].draw();
             }  
         }
     }
@@ -75,9 +105,9 @@ class Bar {
         this.y = y;
         this.width = 20;
         this.height = 60;
-        this.isAttracted = false;
         // 8 rotations: 0(North) - 7 clockwise
-        this.rotation = 0;
+        this.initialRotation = randomInt(0, 7);
+        this.rotation = this.initialRotation;
         this.targetRotation = null;
     }
 
@@ -94,12 +124,12 @@ class Bar {
         return nodeList;
     }
 
-    attract() {
+    attract(option=1) {
         let magDirections = [];
 
         let nodeList = this.getNeighbours();
         nodeList.forEach(item => {
-            if (item.constructor.name === "Magnet") {
+            if (item.constructor.name === "Magnet" && item.isActive) {
                 let offset = [item.x - this.x, item.y - this.y];
                 let direction;
 
@@ -162,7 +192,11 @@ class Bar {
             if (max.length == 1) {
                 // If there is only one strongest direction
                 // Set the rotation to point to that magnet
-                this.rotation = max[0].direction;
+                if (option == 0) {
+                    this.rotation = max[0].direction;
+                } else {
+                    this.targetRotation = max[0].direction;
+                }
             } else {
                 // If Two or more directions with equal (max) strenghs
                 // Calculate an average direction
@@ -183,17 +217,21 @@ class Bar {
                 }
 
                 // Set rotation
-                this.rotation = rotation;
+                if (option == 0) {
+                    this.rotation = rotation;
+                } else {
+                    this.targetRotation = rotation;
+                }
             }
-            
-            this.isAttracted = true;
+        } else {
+            this.rotation = this.initialRotation;
         }
     }
 
-    draw() {
+    drawBar(rotation, pointerColor, bg) {
         let renderX = this.x * this.grid.nodeSize;
         let renderY = this.y * this.grid.nodeSize;
-        let rotation = radians(45 * this.rotation);
+        rotation = radians(45 * rotation);
 
         let circleRadius = this.width/2;
         let circleYOffset = this.height/2;
@@ -203,18 +241,25 @@ class Bar {
         // fill(200);
         // circle(0,0, this.grid.nodeSize);
         
+        fill(bg);
         rotate(rotation);
-        fill(0);
         rect(0,0, this.width, this.height, 20);
 
+
         // Draw pointer
-        if (this.isAttracted) { fill("#f28400"); } 
-        else {fill(255);}
+        fill(pointerColor);
         circle(0, 0-circleYOffset+circleRadius, circleRadius);
 
         // Reset rotation and translation
         rotate(-rotation);
         translate(-renderX, -renderY);
+    }
+
+    draw() {
+        if (this.targetRotation) {
+            this.drawBar(this.targetRotation, "#f28400", "#f28400");
+        }
+        this.drawBar(this.rotation, 255, 0);
     }
 }
 
@@ -223,8 +268,10 @@ class Magnet {
         this.grid = grid
         this.x = x;
         this.y = y;
-        this.radius = 30;
+        this.activeRadius = 30;
+        this.inActiveRadius = 10;
         this.strength = 1;
+        this.isActive = Boolean(randomInt(0, 1));
     }
 
     getNeighbours() {
@@ -244,7 +291,7 @@ class Magnet {
         let strength = this.strength;
         let nodeList = this.getNeighbours();
         nodeList.forEach(item => {
-            if (item.constructor.name === "Magnet") {
+            if (item.constructor.name === "Magnet" && item.isActive) {
                 // Only combine strenth if they are vertical / horizontal neighbours
                 if (Math.abs((item.x - this.x)) + Math.abs((item.y - this.y)) == 1) {
                     strength += item.strength;
@@ -257,11 +304,21 @@ class Magnet {
     draw() {
         let renderX = this.x * this.grid.nodeSize;
         let renderY = this.y * this.grid.nodeSize;
-        fill("#f28400");
-        circle(renderX, renderY, this.radius);
+        let renderRadius = this.isActive ? this.activeRadius : this.inActiveRadius;
+        let gridCenterOffset = this.grid.nodeSize/2;
+
+        // console.log(this.grid.selectedNode)
+        if (onHover(renderX + this.grid.offsetX - gridCenterOffset, renderY + this.grid.offsetY - gridCenterOffset, this.grid.nodeSize, this.grid.nodeSize)) {
+            this.grid.selectedNode = this;
+            renderRadius += 10;
+            cursor("pointer");
+        }
+
+        this.isActive ? fill("#f28400") : fill("#cccccc");
+        circle(renderX, renderY, renderRadius);
         fill(255);
-        textAlign(CENTER, CENTER);
-        text(this.getStrength(), renderX, renderY);
+        // textAlign(CENTER, CENTER);
+        // text(this.getStrength(), renderX, renderY);
     }
 }
 
@@ -273,15 +330,26 @@ function setup() {
     createCanvas(windowWidth, windowHeight);
     rectMode(CENTER);
     noStroke(); 
-    grid = new Grid(5, 5);
-    grid.bars.forEach(function(item) {
-        item.attract();
-    })
+    grid = new Grid(8, 8);
+    grid.bars.forEach(item => {
+        item.attract(1);
+    });
+    grid.deactivateMagnets();
 }
 
 function draw() {
     background(255);
+    cursor("auto");
     grid.draw();
+}
+
+function mouseClicked() {
+    if (grid.selectedNode) {
+        grid.selectedNode.isActive = grid.selectedNode.isActive ? false : true;
+        grid.bars.forEach(item => {
+            item.attract(0);
+        });
+    }
 }
 
 function windowResized() {
