@@ -238,19 +238,13 @@ class Bar {
         let circleYOffset = this.height/2;
 
         translate(renderX, renderY);
-
-        if (DEBUG) {
-            fill(200);
-            circle(0,0, this.grid.nodeSize);
-        }
-        
-        fill(bg);
         rotate(angle);
+        fill(bg);
         rect(0,0, this.width, this.height, 20);
 
 
         // Draw pointer
-        fill((DEBUG && this.isAttracted) ? "#f28400" : pointerColor);
+        fill(pointerColor);
         circle(0, 0-circleYOffset+circleRadius, circleRadius);
 
         // Reset rotation and translation
@@ -270,7 +264,7 @@ class Bar {
         this.angle = (Math.abs(d) < 0.01) ? targetAngle : this.angle + d * 0.1;
 
         // Draw bar
-        this.drawBar(this.angle, 255, 0);
+        this.drawBar(this.angle, (DEBUG && this.isAttracted) ? "#ba34eb" : 255, 0);
     }
 }
 
@@ -330,7 +324,7 @@ class Magnet {
         this.radius = (Math.abs(d) < 0.01) ? targetRadius : this.radius + d * 0.1;
 
         // Draw magnet
-        this.isActive ? fill("#f28400") : fill("#cccccc");
+        this.isActive ? fill("#ba34eb") : fill("#cccccc");
         circle(renderX, renderY, this.radius);
         fill(255);
 
