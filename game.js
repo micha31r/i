@@ -88,13 +88,6 @@ class Grid {
                 this.nodes[y][x].draw();
             }  
         }
-
-        // textAlign(CENTER, CENTER);
-        // translate(-this.offsetX, -this.offsetY);
-        // fill(0);
-        // textSize(20)
-        // text(this.magnets.length, width/2, height/2);
-        // // textFont("Nosifer");
     }
 }
 
