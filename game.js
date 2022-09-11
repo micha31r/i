@@ -95,8 +95,6 @@ class Bar {
     }
 
     attract() {
-        // let rotation = 0;
-        // let magnetCount = 0;
         let magDirections = [];
 
         let nodeList = this.getNeighbours();
@@ -104,6 +102,7 @@ class Bar {
             if (item.constructor.name === "Magnet") {
                 let offset = [item.x - this.x, item.y - this.y];
                 let direction;
+
                 switch(JSON.stringify(offset)) {
                     case "[0,-1]":
                         direction = 0;
@@ -130,6 +129,7 @@ class Bar {
                         direction = 7;
                         break;
                 }
+
                 magDirections.push({
                     offset: offset,
                     direction: direction,
@@ -139,70 +139,55 @@ class Bar {
         });
 
         if (magDirections.length) {
-            // Find the strongest direction
-
             let nearDirections = [];
-
             let allDirections = [];
 
             let max = [{strength: 0}];
             magDirections.forEach(item => {
+                // Find the strongest direction
                 if (item.strength > max[0].strength) {
                     max = [item];
                 } else if (item.strength == max[0].strength) {
                     max.push(item);
                 }
 
+                // Check if any magnets are directly horizontal / vertical
                 if ([0, 2, 4, 6].indexOf(item.direction) > -1) {
                     nearDirections.push(item.direction);
                 }
+
                 allDirections.push(item.direction);
             });
 
             if (max.length == 1) {
+                // If there is only one strongest direction
+                // Set the rotation to point to that magnet
                 this.rotation = max[0].direction;
-            } else { // Two or more directions with equal (max) strenghs
-                let totalRotation = max.reduce((a, b) => a + b.direction, 0) / max.length;
-                // console.log(totalRotation)
+            } else {
+                // If Two or more directions with equal (max) strenghs
+                // Calculate an average direction
 
-                if (allDirections.indexOf(totalRotation) === -1 && allDirections.indexOf(totalRotation-1) === -1 && allDirections.indexOf(totalRotation+1) === -1) {
-                    totalRotation = (totalRotation + 4) % 8;
+                let rotation = max.reduce((a, b) => a + b.direction, 0) / max.length;
+
+                // Reverse direction
+                if (allDirections.indexOf(rotation) === -1 && allDirections.indexOf(rotation-1) === -1 && allDirections.indexOf(rotation+1) === -1) {
+                    rotation = (rotation + 4) % 8;
                 }
 
-                if (totalRotation % 1 !== 0) {
-                    // let nearDirections = [0, 2, 4, 6].filter(v => magDirections.includes(v));
-                    totalRotation = nearDirections.reduce(function(prev, curr) {
-                        return (Math.abs(curr - totalRotation) < Math.abs(prev - totalRotation) ? curr : prev);
+                // If direction includes a decimal (ie half way between two directions)
+                if (rotation % 1 !== 0) {
+                    // Find the closest horizontal / vertical direction where there is a magnet
+                    rotation = nearDirections.reduce(function(prev, curr) {
+                        return (Math.abs(curr - rotation) < Math.abs(prev - rotation) ? curr : prev);
                     });
                 }
-                this.rotation = totalRotation;
+
+                // Set rotation
+                this.rotation = rotation;
             }
+            
             this.isAttracted = true;
         }
-
-
-
-        /*if (magnetCount) {
-            let totalRotation = rotation / magnetCount;
-
-            // if (magDirections.indexOf(totalRotation) === -1 && magDirections.indexOf(totalRotation-1) === -1 && magDirections.indexOf(totalRotation+1) === -1) {
-            //     totalRotation = (totalRotation + 4) % 8;
-            // }
-
-            if (totalRotation % 1 !== 0) {
-                let nearDirections = [0, 2, 4, 6].filter(v => magDirections.includes(v));
-                totalRotation = nearDirections.reduce(function(prev, curr) {
-                    return (Math.abs(curr - totalRotation) < Math.abs(prev - totalRotation) ? curr : prev);
-                });
-            }
-            this.rotation = totalRotation;
-            this.isAttracted = true;
-        }*/
-    }
-
-    setRotation(n) {
-        // 8 possible options for n (0 - 7)
-        this.rotation = n % 8;
     }
 
     draw() {
@@ -214,16 +199,19 @@ class Bar {
         let circleYOffset = this.height/2;
 
         translate(renderX, renderY);
+        // Debugging
+        // fill(200);
         // circle(0,0, this.grid.nodeSize);
+        
         rotate(rotation);
         fill(0);
         rect(0,0, this.width, this.height, 20);
-        if (this.isAttracted) {
-            fill("#f28400")
-        } else {
-            fill(255);
-        }
+
+        // Draw pointer
+        if (this.isAttracted) { fill("#f28400"); } 
+        else {fill(255);}
         circle(0, 0-circleYOffset+circleRadius, circleRadius);
+
         // Reset rotation and translation
         rotate(-rotation);
         translate(-renderX, -renderY);
