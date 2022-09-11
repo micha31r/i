@@ -5,11 +5,40 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>i</title>
 
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
 	<link rel="stylesheet" type="text/css" href="normalize.css">
 
 	<style type="text/css">
+		* {
+			font-family: "Poppins", sans-serif;
+		}
 		canvas {
 			display: flex;
+		}
+		h2 {
+			margin: 0;
+		}
+		.count-container {
+			position: fixed;
+			display: grid;
+			grid-template-columns: 1fr auto;
+			gap: 10px;
+			top: 20px;
+			right: 20px;
+		}
+		.ball {
+			display: inline-block;
+			width: 30px;
+			height: 30px;
+			background: #ba34eb;
+			border-radius: 100%;
+			margin: auto;
+		}
+		#magnet-count {
+			color: #ba34eb;
+			margin: auto;
 		}
 	</style>
 </head>
@@ -17,5 +46,7 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.2/p5.min.js" integrity="sha512-rCZdHNB0AePry6kAnKAVFMRfWPmUXSo+/vlGtrOUvhsxD0Punm/xWbEh+8vppPIOzKB9xnk42yCRZ5MD/jvvjQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 	<script type="text/javascript" src="game.js"></script>
+
+	<div class="count-container"><span class="ball"></span><h2 id="magnet-count"></h2></div>
 </body>
 </html>

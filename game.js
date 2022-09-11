@@ -23,13 +23,21 @@ class Grid {
         this.offsetX = 0;
         this.offsetY = 0;
         this.selectedMagnet = null;
+        this.maxMagCount = 0;
 
         this.calcOffset();
         this.populate();
 
         for (let i=0; i<randomInt(20, 60); i++) {
-            this.setMagnet(randomInt(0, this.width-1), randomInt(0, this.height-1));
+            let x = randomInt(0, this.width-1);
+            let y = randomInt(0, this.height-1);
+            let node = this.locate(x, y);
+            if (node.constructor.name == "Bar") {
+                this.setMagnet(randomInt(0, this.width-1), randomInt(0, this.height-1));
+            }
         }
+
+        document.querySelector("#magnet-count").textContent = this.maxMagCount;
     }
     
     calcOffset() {
@@ -80,6 +88,13 @@ class Grid {
                 this.nodes[y][x].draw();
             }  
         }
+
+        // textAlign(CENTER, CENTER);
+        // translate(-this.offsetX, -this.offsetY);
+        // fill(0);
+        // textSize(20)
+        // text(this.magnets.length, width/2, height/2);
+        // // textFont("Nosifer");
     }
 }
 
@@ -278,6 +293,10 @@ class Magnet {
         this.activeRadius = 30;
         this.inActiveRadius = 10;
         this.radius = this.inActiveRadius;
+
+        if (this.isActive) {
+            this.grid.maxMagCount++;
+        }
     }
 
     getNeighbours() {
@@ -357,12 +376,31 @@ function draw() {
 }
 
 function mouseClicked() {
+    // Get no. of active magnets
+    let activeCount = 0;
+    grid.magnets.forEach(item => {
+        if (item.isActive) {
+            activeCount++;
+        }
+    })
+
     if (grid.selectedMagnet) {
-        grid.selectedMagnet.isActive = grid.selectedMagnet.isActive ? false : true;
+        if (grid.selectedMagnet.isActive) {
+            grid.selectedMagnet.isActive = false;
+            activeCount--;
+        } else {
+            if (activeCount < grid.maxMagCount) {
+                grid.selectedMagnet.isActive = true;
+                activeCount++;
+            }
+        }
         grid.bars.forEach(item => {
             item.attract(0);
         });
     }
+
+    // Update counter text
+    document.querySelector("#magnet-count").textContent = grid.maxMagCount - activeCount;
 }
 
 function windowResized() {
