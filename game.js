@@ -109,6 +109,11 @@ class Bar {
         this.initialRotation = randomInt(0, 7);
         this.rotation = this.initialRotation;
         this.targetRotation = null;
+        this.angle = this.toAngle(this.rotation);
+    }
+
+    toAngle(angle) {
+        return radians(45 * angle)
     }
 
     getNeighbours() {
@@ -228,10 +233,10 @@ class Bar {
         }
     }
 
-    drawBar(rotation, pointerColor, bg) {
+    drawBar(angle, pointerColor, bg) {
         let renderX = this.x * this.grid.nodeSize;
         let renderY = this.y * this.grid.nodeSize;
-        rotation = radians(45 * rotation);
+        // rotation = rotationToAngle(this.rotation);
 
         let circleRadius = this.width/2;
         let circleYOffset = this.height/2;
@@ -242,7 +247,7 @@ class Bar {
         // circle(0,0, this.grid.nodeSize);
         
         fill(bg);
-        rotate(rotation);
+        rotate(angle);
         rect(0,0, this.width, this.height, 20);
 
 
@@ -251,15 +256,23 @@ class Bar {
         circle(0, 0-circleYOffset+circleRadius, circleRadius);
 
         // Reset rotation and translation
-        rotate(-rotation);
+        rotate(-angle);
         translate(-renderX, -renderY);
     }
 
     draw() {
+        // Draw target bar
         if (this.targetRotation) {
-            this.drawBar(this.targetRotation, "#f28400", "#f28400");
+            this.drawBar(this.toAngle(this.targetRotation), "#f28400", "#f28400");
         }
-        this.drawBar(this.rotation, 255, 0);
+
+        // Update angle animation
+        let targetAngle = this.toAngle(this.rotation);
+        let d = targetAngle - this.angle;
+        this.angle = (Math.abs(d) < 0.01) ? targetAngle : this.angle + d * 0.1;
+
+        // Draw bar
+        this.drawBar(this.angle, 255, 0);
     }
 }
 
