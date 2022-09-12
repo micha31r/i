@@ -205,14 +205,16 @@ class Bar {
 
                 // If direction includes a decimal (ie half way between two directions)
                 if (rotation % 1 !== 0) {
-                    strongestMagnets.forEach((item, index) => {
-                        let oppositeNodeIndex = strongestMagnets.indexOf([-item.offset.x, -item.offset.y]);
-                        if (oppositeNodeIndex > -1)  {
-                            map.splice(index, 1);
-                            map.splice(oppositeNodeIndex, 1);
+                    let netDirections = [];
+                    strongestDirections.forEach(item => {
+                        let index = netDirections.indexOf((item + 4) % 8);
+                        if (index > -1) {
+                            netDirections.splice(index, 1);
+                        } else {
+                            netDirections.push(item);
                         }
                     })
-                    rotation = strongestMagnets[0].direction;
+                    rotation = netDirections[0];
                 }
 
                 // Reverse direction
