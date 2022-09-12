@@ -3,6 +3,9 @@ const PRIMARY_COLOR = "#ff9305";
 const SECONDARY_COLOR = "#cfcac2";
 const BG_COLOR = "#f6f4ec";
 
+// 0 = play mode, 1 = win animation
+var state = 0;
+
 function randomInt(min, max) {
     return Math.floor(random(min, max+1));
 }
@@ -31,11 +34,13 @@ class Grid {
         this.calcOffset();
         this.populate();
 
-        for (let i=0; i<randomInt(20, 60); i++) {
+        for (let i=0; i<5; i++) {
             let x = randomInt(0, this.width-1);
             let y = randomInt(0, this.height-1);
-            let node = this.locate(x, y);
+            let node = this.nodes[y][x];
+
             if (node.constructor.name == "Bar") {
+                this.bars.splice(this.bars.indexOf(node), 1);
                 this.setMagnet(randomInt(0, this.width-1), randomInt(0, this.height-1));
             }
         }
@@ -59,10 +64,29 @@ class Grid {
         }
     }
 
-    checkPositions() {
-        this.magnets.each(item => {
-            
+    checkAlignment() {
+        let aligned = [];
+        let complete = true;
+        this.bars.some(item => {
+            if (item.targetRotation) {
+                let difference = Math.abs(item.targetRotation - item.rotation);
+                if (difference == 0 || difference == 4) {
+                    aligned.push(item);
+                } else {
+                    // Break if at least one bar is misaligned
+                    complete = false;
+                    return true;
+                }
+            }
         });
+        return complete ? aligned : false;
+    }
+
+    checkWinState() {
+        let bars = this.checkAlignment();
+        if (typeof(bars) === "object") {
+            state = 1;
+        }
     }
 
     setMagnet(x, y) {
@@ -88,13 +112,30 @@ class Grid {
         return undefined;
     }
 
+    allRotationComplete() {
+        let complete = true;
+        this.bars.some(item => {
+            if (item.isRotating) {
+                complete = false;
+                return true;
+            }
+        });
+        return complete;
+    }
+
     draw() {
         this.selectedMagnet = null;
         translate(this.offsetX, this.offsetY);
 
         for (let y=0; y<this.height; y++) {
             for (let x=0; x<this.width; x++) {
-                this.nodes[y][x].draw();
+                let node = this.nodes[y][x];
+                if (state == 1 && node.constructor.name == "Bar" && node.targetRotation) {
+                    if (this.allRotationComplete()) {
+                        node.popAnimation(1.2);
+                    }
+                }
+                node.draw();
             }  
         }
     }
@@ -112,7 +153,23 @@ class Bar {
         this.rotation = this.initialRotation;
         this.targetRotation = null;
         this.angle = this.toAngle(this.rotation);
+        this.isRotating = false;
         this.isAttracted = false;
+        this.scale = 1;
+        // 0 = forward, 1 = backward
+        this.popAnimationDirection = 0;
+    }
+
+    popAnimation(maxScale) {
+        let targetScale = this.popAnimationDirection == 0 ? maxScale : 1;
+        let d = targetScale - this.scale;
+        if (Math.abs(d) < 0.01) {
+            this.scale = targetScale;
+            this.popAnimationDirection = 1;
+        } else {
+            this.scale += d * 0.1;
+        }
+        // console.log(this.scale);
     }
 
     toAngle(angle) {
@@ -264,6 +321,7 @@ class Bar {
 
         translate(renderX, renderY);
         rotate(angle);
+        scale(this.scale);
         fill(bg);
         rect(0,0, this.width, this.height, 20);
 
@@ -273,6 +331,7 @@ class Bar {
         circle(0, 0-circleYOffset+circleRadius, circleRadius);
 
         // Reset rotation and translation
+        scale(1 / this.scale);
         rotate(-angle);
         translate(-renderX, -renderY);
     }
@@ -286,7 +345,13 @@ class Bar {
         // Update angle animation
         let targetAngle = this.toAngle(this.rotation);
         let d = targetAngle - this.angle;
-        this.angle = (Math.abs(d) < 0.01) ? targetAngle : this.angle + d * 0.1;
+        if (Math.abs(d) < 0.01) {
+            this.angle = targetAngle;
+            this.isRotating = false;
+        } else {
+            this.angle += d * 0.1;
+            this.isRotating = true;
+        }
 
         // Draw bar
         this.drawBar(this.angle, (DEBUG && this.isAttracted) ? PRIMARY_COLOR : BG_COLOR, 0);
@@ -372,7 +437,7 @@ function setup() {
     createCanvas(windowWidth, windowHeight);
     rectMode(CENTER);
     noStroke(); 
-    grid = new Grid(8, 8);
+    grid = new Grid(5,5);
     grid.bars.forEach(item => {
         item.attract(1);
     });
@@ -386,31 +451,36 @@ function draw() {
 }
 
 function mouseClicked() {
-    // Get no. of active magnets
-    let activeCount = 0;
-    grid.magnets.forEach(item => {
-        if (item.isActive) {
-            activeCount++;
-        }
-    })
+    switch (state) {
+        case 0:
+            // Get no. of active magnets
+            let activeCount = 0;
+            grid.magnets.forEach(item => {
+                if (item.isActive) {
+                    activeCount++;
+                }
+            })
 
-    if (grid.selectedMagnet) {
-        if (grid.selectedMagnet.isActive) {
-            grid.selectedMagnet.isActive = false;
-            activeCount--;
-        } else {
-            if (activeCount < grid.maxMagCount) {
-                grid.selectedMagnet.isActive = true;
-                activeCount++;
+            if (grid.selectedMagnet) {
+                if (grid.selectedMagnet.isActive) {
+                    grid.selectedMagnet.isActive = false;
+                    activeCount--;
+                } else {
+                    if (activeCount < grid.maxMagCount) {
+                        grid.selectedMagnet.isActive = true;
+                        activeCount++;
+                    }
+                }
+                grid.bars.forEach(item => {
+                    item.attract(0);
+                });
+                grid.checkWinState();
             }
-        }
-        grid.bars.forEach(item => {
-            item.attract(0);
-        });
-    }
 
-    // Update counter text
-    document.querySelector("#magnet-count").textContent = grid.maxMagCount - activeCount;
+            // Update counter text
+            document.querySelector("#magnet-count").textContent = grid.maxMagCount - activeCount;
+            break;
+    }
 }
 
 function windowResized() {
