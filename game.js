@@ -17,7 +17,7 @@ function onHover(x, y, w, h) {
 class Game {
     constructor() {
         this.state = 0;
-        this.grid = new Grid(this, 10, 8);
+        this.grid = new Grid(this, 10, 10);
         this.grid.bars.forEach(item => {
             item.attract(1);
         });
@@ -88,7 +88,7 @@ class Grid {
         this.calcOffset();
         this.populate();
 
-        for (let i=0; i<5; i++) {
+        for (let i=0; i<50; i++) {
             let x = randomInt(0, this.width-1);
             let y = randomInt(0, this.height-1);
             let node = this.nodes[y][x];
@@ -480,7 +480,12 @@ class Magnet {
         let gridCenterOffset = this.grid.nodeSize/2;
         let targetRadius = this.isActive ? this.activeRadius : this.inActiveRadius;
 
-        if (onHover(renderX + this.grid.offsetX - gridCenterOffset, renderY + this.grid.offsetY - gridCenterOffset, this.grid.nodeSize, this.grid.nodeSize)) {
+        if (onHover(
+            renderX * this.grid.scale + this.grid.offsetX - gridCenterOffset,
+            renderY * this.grid.scale + this.grid.offsetY - gridCenterOffset,
+            this.grid.nodeSize * this.grid.scale,
+            this.grid.nodeSize * this.grid.scale
+        )) {
             this.grid.selectedMagnet = this;
             targetRadius += 10;
             cursor("pointer");
