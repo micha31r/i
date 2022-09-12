@@ -232,9 +232,13 @@ class Bar {
             }
 
             // Shift the initial rotation if target rotation is the same as (or opposite to) the initial rotation
-            let difference = Math.abs(this.targetRotation - this.initialRotation);
-            if (this.targetRotation && (difference == 0 || difference == 4)) {
-                this.initialRotation = (this.initialRotation + 1) % 8;
+            if (option == 1) {
+                let difference = Math.abs(this.targetRotation - this.initialRotation);
+                if (this.targetRotation && (difference == 0 || difference == 4)) {
+                    this.initialRotation = (this.initialRotation + 1) % 8;
+                    this.rotation = this.initialRotation;
+                    this.angle = this.toAngle(this.rotation);
+                }
             }
 
         } else {
