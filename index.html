@@ -24,12 +24,20 @@
 			min-width: 1em;
 			margin: 0;
 		}
+		#timer {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 10px;
+			background: var(--primary-color);
+		}
 		.count-container {
 			position: fixed;
 			display: grid;
 			grid-template-columns: 1fr auto;
 			gap: 10px;
-			top: 20px;
+			top: 30px;
 			right: 20px;
 		}
 		.ball {
@@ -51,6 +59,7 @@
 
 	<script type="text/javascript" src="game.js"></script>
 
+	<div id="timer"></div>
 	<div class="count-container"><span class="ball"></span><h2 id="magnet-count"></h2></div>
 </body>
 </html>

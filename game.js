@@ -17,11 +17,26 @@ function onHover(x, y, w, h) {
 class Game {
     constructor() {
         this.state = 0;
-        this.grid = new Grid(this, 8, 8);
+        this.grid = new Grid(this, 9, 9);
         this.grid.bars.forEach(item => {
             item.attract(1);
         });
         this.grid.deactivateMagnets();
+
+        this.initialTimerValue = this.grid.maxMagCount * 2;
+        this.timer = this.initialTimerValue;
+    }
+
+    getDt() {
+        let dt = 1/frameRate();
+        return isFinite(dt) ? dt : 0;
+    }
+
+    updateTimer() {
+        this.timer -= this.getDt();
+        if (this.timer > 0) {
+            document.querySelector("#timer").style.width = this.timer / this.initialTimerValue * 100 + "%";
+        }
     }
 
     mouseClickCallback() {
@@ -528,6 +543,7 @@ function draw() {
     background(BG_COLOR);
     cursor("auto");
     game.draw();
+    game.updateTimer();
 }
 
 function mouseClicked() {
