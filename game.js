@@ -88,7 +88,8 @@ class Grid {
         this.calcOffset();
         this.populate();
 
-        for (let i=0; i<50; i++) {
+        // Make ~25% of all nodes magnets
+        while (this.magnets.length < this.width * this.height * 0.25) {
             let x = randomInt(0, this.width-1);
             let y = randomInt(0, this.height-1);
             let node = this.nodes[y][x];
