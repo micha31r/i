@@ -17,7 +17,7 @@ function onHover(x, y, w, h) {
 class Game {
     constructor() {
         this.state = 0;
-        this.grid = new Grid(this, 5,5);
+        this.grid = new Grid(this, 10, 8);
         this.grid.bars.forEach(item => {
             item.attract(1);
         });
@@ -58,6 +58,7 @@ class Game {
     }
 
     resize() {
+        this.grid.calcScale();
         this.grid.calcOffset();
     }
 
@@ -80,7 +81,10 @@ class Grid {
         this.offsetY = 0;
         this.selectedMagnet = null;
         this.maxMagCount = 0;
+        this.scale = 1;
+        this.targetScale = this.scale;
 
+        this.calcScale();
         this.calcOffset();
         this.populate();
 
@@ -99,8 +103,21 @@ class Grid {
     }
     
     calcOffset() {
-        this.offsetX = width/2 - (this.width-1)/2 * this.nodeSize;
-        this.offsetY = height/2 - (this.height-1)/2 * this.nodeSize;
+        let newScale = this.scale; 
+        let absoluteWidth = (this.width-1) * this.nodeSize * this.scale;
+        let absoluteHeight = (this.height-1) * this.nodeSize * this.scale;
+        this.offsetX = width/2 - absoluteWidth/2;
+        this.offsetY = height/2 - absoluteHeight/2;
+    }
+
+    calcScale() {
+        let margin = 100;
+        let absoluteWidth = this.width * this.nodeSize * this.scale;
+        let absoluteHeight = this.height * this.nodeSize * this.scale;
+        let hRatio = windowWidth / (absoluteWidth + margin);
+        let vRatio = windowHeight / (absoluteHeight + margin);
+
+        this.scale *= Math.min(hRatio, vRatio);
     }
 
     populate() {
@@ -175,7 +192,9 @@ class Grid {
 
     draw() {
         this.selectedMagnet = null;
-        translate(this.offsetX, this.offsetY);
+
+        translate(this.offsetX , this.offsetY);
+        scale(this.scale);
 
         for (let y=0; y<this.height; y++) {
             for (let x=0; x<this.width; x++) {
@@ -188,6 +207,8 @@ class Grid {
                 node.draw();
             }  
         }
+
+        scale(1/this.scale);
     }
 }
 
