@@ -96,7 +96,7 @@ class Grid {
 
             if (node.constructor.name == "Bar") {
                 this.bars.splice(this.bars.indexOf(node), 1);
-                this.setMagnet(randomInt(0, this.width-1), randomInt(0, this.height-1));
+                this.setMagnet(x, y);
             }
         }
 
