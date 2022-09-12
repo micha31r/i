@@ -17,7 +17,7 @@ function onHover(x, y, w, h) {
 class Game {
     constructor() {
         this.state = 0;
-        this.grid = new Grid(this, 10, 10);
+        this.grid = new Grid(this, 8, 8);
         this.grid.bars.forEach(item => {
             item.attract(1);
         });
@@ -88,8 +88,8 @@ class Grid {
         this.calcOffset();
         this.populate();
 
-        // Make ~25% of all nodes magnets
-        while (this.magnets.length < this.width * this.height * 0.25) {
+        // Make ~50% of all nodes magnets
+        while (this.magnets.length < this.width * this.height * 0.5) {
             let x = randomInt(0, this.width-1);
             let y = randomInt(0, this.height-1);
             let node = this.nodes[y][x];
@@ -98,6 +98,11 @@ class Grid {
                 this.bars.splice(this.bars.indexOf(node), 1);
                 this.setMagnet(x, y);
             }
+        }
+
+        if (!this.maxMagCount) {
+            this.magnets[0].isActive = true;
+            this.maxMagCount++;
         }
 
         document.querySelector("#magnet-count").textContent = this.maxMagCount;
