@@ -1,5 +1,7 @@
 const DEBUG = false;
-const THEME_COLOR = "#ff9305";
+const PRIMARY_COLOR = "#ff9305";
+const SECONDARY_COLOR = "#ccc6be";
+const BG_COLOR = "#f6f4ec";
 
 function randomInt(min, max) {
     return Math.floor(random(min, max+1));
@@ -55,6 +57,12 @@ class Grid {
                 this.bars.push(bar);
             }  
         }
+    }
+
+    checkPositions() {
+        this.magnets.each(item => {
+            
+        });
     }
 
     setMagnet(x, y) {
@@ -272,7 +280,7 @@ class Bar {
     draw() {
         // Draw target bar
         if (this.targetRotation) {
-            this.drawBar(this.toAngle(this.targetRotation), "#cccccc", "#cccccc");
+            this.drawBar(this.toAngle(this.targetRotation), SECONDARY_COLOR, SECONDARY_COLOR);
         }
 
         // Update angle animation
@@ -281,7 +289,7 @@ class Bar {
         this.angle = (Math.abs(d) < 0.01) ? targetAngle : this.angle + d * 0.1;
 
         // Draw bar
-        this.drawBar(this.angle, (DEBUG && this.isAttracted) ? THEME_COLOR : 255, 0);
+        this.drawBar(this.angle, (DEBUG && this.isAttracted) ? PRIMARY_COLOR : BG_COLOR, 0);
     }
 }
 
@@ -345,9 +353,9 @@ class Magnet {
         this.radius = (Math.abs(d) < 0.01) ? targetRadius : this.radius + d * 0.1;
 
         // Draw magnet
-        this.isActive ? fill(THEME_COLOR) : fill("#cccccc");
+        this.isActive ? fill(PRIMARY_COLOR) : fill(SECONDARY_COLOR);
         circle(renderX, renderY, this.radius);
-        fill(255);
+        fill(BG_COLOR);
 
         if (DEBUG) {
             textAlign(CENTER, CENTER);
@@ -372,7 +380,7 @@ function setup() {
 }
 
 function draw() {
-    background(255);
+    background(BG_COLOR);
     cursor("auto");
     grid.draw();
 }
