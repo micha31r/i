@@ -1,6 +1,6 @@
 const DEBUG = false;
 const PRIMARY_COLOR = "#ff9305";
-const SECONDARY_COLOR = "#ccc6be";
+const SECONDARY_COLOR = "#cfcac2";
 const BG_COLOR = "#f6f4ec";
 
 function randomInt(min, max) {
