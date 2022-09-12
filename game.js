@@ -3,9 +3,6 @@ const PRIMARY_COLOR = "#ff9305";
 const SECONDARY_COLOR = "#cfcac2";
 const BG_COLOR = "#f6f4ec";
 
-// 0 = play mode, 1 = win animation
-var state = 0;
-
 function randomInt(min, max) {
     return Math.floor(random(min, max+1));
 }
@@ -17,8 +14,61 @@ function onHover(x, y, w, h) {
     return false;
 }
 
+class Game {
+    constructor() {
+        this.state = 0;
+        this.grid = new Grid(this, 5,5);
+        this.grid.bars.forEach(item => {
+            item.attract(1);
+        });
+        this.grid.deactivateMagnets();
+    }
+
+    mouseClickCallback() {
+        switch (this.state) {
+        case 0:
+            // Get no. of active magnets
+            let activeCount = 0;
+            this.grid.magnets.forEach(item => {
+                if (item.isActive) {
+                    activeCount++;
+                }
+            })
+
+            if (this.grid.selectedMagnet) {
+                if (this.grid.selectedMagnet.isActive) {
+                    this.grid.selectedMagnet.isActive = false;
+                    activeCount--;
+                } else {
+                    if (activeCount < this.grid.maxMagCount) {
+                        this.grid.selectedMagnet.isActive = true;
+                        activeCount++;
+                    }
+                }
+                this.grid.bars.forEach(item => {
+                    item.attract(0);
+                });
+                this.grid.checkWinState();
+            }
+
+            // Update counter text
+            document.querySelector("#magnet-count").textContent = this.grid.maxMagCount - activeCount;
+            break;
+        }
+    }
+
+    resize() {
+        this.grid.calcOffset();
+    }
+
+    draw() {
+        this.grid.draw();
+    }
+}
+
 class Grid {
-    constructor(w, h) {
+    constructor(game, w, h) {
+        this.game = game;
         this.width = w;
         this.height = h;
         this.nodeSize = 80;
@@ -85,7 +135,7 @@ class Grid {
     checkWinState() {
         let bars = this.checkAlignment();
         if (typeof(bars) === "object") {
-            state = 1;
+            this.game.state = 1;
         }
     }
 
@@ -130,7 +180,7 @@ class Grid {
         for (let y=0; y<this.height; y++) {
             for (let x=0; x<this.width; x++) {
                 let node = this.nodes[y][x];
-                if (state == 1 && node.constructor.name == "Bar" && node.targetRotation) {
+                if (this.game.state == 1 && node.constructor.name == "Bar" && node.targetRotation) {
                     if (this.allRotationComplete()) {
                         node.popAnimation(1.2);
                     }
@@ -143,6 +193,7 @@ class Grid {
 
 class Bar {
     constructor(grid, x, y) {
+        this.game = grid.game;
         this.grid = grid;
         this.x = x;
         this.y = y;
@@ -360,7 +411,8 @@ class Bar {
 
 class Magnet {
     constructor(grid, x, y) {
-        this.grid = grid
+        this.game = grid.game;
+        this.grid = grid;
         this.x = x;
         this.y = y;
         this.strength = 1;
@@ -431,59 +483,26 @@ class Magnet {
 
 // Game Loop
 
-var grid;
+var game;
 
 function setup() {
     createCanvas(windowWidth, windowHeight);
     rectMode(CENTER);
     noStroke(); 
-    grid = new Grid(5,5);
-    grid.bars.forEach(item => {
-        item.attract(1);
-    });
-    grid.deactivateMagnets();
+    game = new Game();
 }
 
 function draw() {
     background(BG_COLOR);
     cursor("auto");
-    grid.draw();
+    game.draw();
 }
 
 function mouseClicked() {
-    switch (state) {
-        case 0:
-            // Get no. of active magnets
-            let activeCount = 0;
-            grid.magnets.forEach(item => {
-                if (item.isActive) {
-                    activeCount++;
-                }
-            })
-
-            if (grid.selectedMagnet) {
-                if (grid.selectedMagnet.isActive) {
-                    grid.selectedMagnet.isActive = false;
-                    activeCount--;
-                } else {
-                    if (activeCount < grid.maxMagCount) {
-                        grid.selectedMagnet.isActive = true;
-                        activeCount++;
-                    }
-                }
-                grid.bars.forEach(item => {
-                    item.attract(0);
-                });
-                grid.checkWinState();
-            }
-
-            // Update counter text
-            document.querySelector("#magnet-count").textContent = grid.maxMagCount - activeCount;
-            break;
-    }
+    game.mouseClickCallback();
 }
 
 function windowResized() {
     resizeCanvas(windowWidth, windowHeight);
-    grid.calcOffset();
+    game.resize();
 }
