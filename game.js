@@ -1,4 +1,5 @@
-var DEBUG = false;
+const DEBUG = false;
+const THEME_COLOR = "#ff9305";
 
 function randomInt(min, max) {
     return Math.floor(random(min, max+1));
@@ -230,6 +231,12 @@ class Bar {
                 }
             }
 
+            // Shift the initial rotation if target rotation is the same as (or opposite to) the initial rotation
+            let difference = Math.abs(this.targetRotation - this.initialRotation);
+            if (this.targetRotation && (difference == 0 || difference == 4)) {
+                this.initialRotation = (this.initialRotation + 1) % 8;
+            }
+
         } else {
             this.isAttracted = false;
             this.rotation = this.initialRotation;
@@ -270,7 +277,7 @@ class Bar {
         this.angle = (Math.abs(d) < 0.01) ? targetAngle : this.angle + d * 0.1;
 
         // Draw bar
-        this.drawBar(this.angle, (DEBUG && this.isAttracted) ? "#ba34eb" : 255, 0);
+        this.drawBar(this.angle, (DEBUG && this.isAttracted) ? THEME_COLOR : 255, 0);
     }
 }
 
@@ -334,7 +341,7 @@ class Magnet {
         this.radius = (Math.abs(d) < 0.01) ? targetRadius : this.radius + d * 0.1;
 
         // Draw magnet
-        this.isActive ? fill("#ba34eb") : fill("#cccccc");
+        this.isActive ? fill(THEME_COLOR) : fill("#cccccc");
         circle(renderX, renderY, this.radius);
         fill(255);
 
