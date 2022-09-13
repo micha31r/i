@@ -93,7 +93,8 @@ class Game {
                         activeCount++;
                     }
                 }
-                this.grid.selectedMagnet = null;
+                mouseX = 0;
+                mouseY = 0;
                 this.grid.bars.forEach(item => {
                     item.attract(0);
                 });
@@ -295,7 +296,6 @@ class Bar {
         } else {
             this.scale += d * this.game.getDt() * ANIMATION_SPEED;
         }
-        // console.log(this.scale);
     }
 
     toAngle(angle) {
@@ -545,7 +545,6 @@ class Magnet {
         )) {
             this.grid.selectedMagnet = this;
             targetRadius += targetRadius * 0.3 || 20;
-            cursor("pointer");
         }
 
         // Update radius animation
@@ -579,13 +578,13 @@ var game;
 function setup() {
     createCanvas(windowWidth, windowHeight);
     rectMode(CENTER);
+    cursor("pointer");
     game = new Game();
 }
 
 function draw() {
     noStroke();
     background(BG_COLOR);
-    cursor("auto");
     game.draw();
     game.updateTimer();
 }
