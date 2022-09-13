@@ -2,6 +2,7 @@ const DEBUG = false;
 const PRIMARY_COLOR = "#0841ff";
 const SECONDARY_COLOR = "#a5bde8";
 const BG_COLOR = "#f0f6ff";
+const ANIMATION_SPEED = 8;
 
 function randomInt(min, max) {
     return Math.floor(random(min, max+1));
@@ -293,7 +294,7 @@ class Bar {
             this.scale = targetScale;
             this.popAnimationDirection = 1;
         } else {
-            this.scale += d * 0.1;
+            this.scale += d * this.game.getDt() * ANIMATION_SPEED;
         }
         // console.log(this.scale);
     }
@@ -478,7 +479,7 @@ class Bar {
             this.angle = targetAngle;
             this.isRotating = false;
         } else {
-            this.angle += d * 0.1;
+            this.angle += d * this.game.getDt() * ANIMATION_SPEED;
             this.isRotating = true;
         }
 
@@ -550,7 +551,7 @@ class Magnet {
 
         // Update radius animation
         let d = targetRadius - this.radius;
-        this.radius = (Math.abs(d) < 0.01) ? targetRadius : this.radius + d * 0.1;
+        this.radius = (Math.abs(d) < 0.01) ? targetRadius : this.radius + d * this.game.getDt() * ANIMATION_SPEED;
 
         // Draw magnet
         if (this.radius > 0) fill(PRIMARY_COLOR);
