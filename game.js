@@ -3,6 +3,7 @@ const PRIMARY_COLOR = "#0841ff";
 const SECONDARY_COLOR = "#a5bde8";
 const BG_COLOR = "#f0f6ff";
 const ANIMATION_SPEED = 8;
+const MARGIN = 100;
 
 function randomInt(min, max) {
     return Math.floor(random(min, max+1));
@@ -155,7 +156,6 @@ class Grid {
     }
     
     calcOffset() {
-        let newScale = this.scale; 
         let absoluteWidth = (this.width-1) * this.nodeSize * this.scale;
         let absoluteHeight = (this.height-1) * this.nodeSize * this.scale;
         this.offsetX = width/2 - absoluteWidth/2;
@@ -163,11 +163,10 @@ class Grid {
     }
 
     calcScale() {
-        let margin = 100;
         let absoluteWidth = this.width * this.nodeSize * this.scale;
         let absoluteHeight = this.height * this.nodeSize * this.scale;
-        let hRatio = windowWidth / (absoluteWidth + margin);
-        let vRatio = windowHeight / (absoluteHeight + margin);
+        let hRatio = (windowWidth - MARGIN) / absoluteWidth;
+        let vRatio = (windowHeight - MARGIN) / absoluteHeight;
 
         this.scale *= Math.min(hRatio, vRatio);
     }
