@@ -589,11 +589,19 @@ function draw() {
     game.updateTimer();
 }
 
-function touchEnded() {
+function touchEnded(event) {
     game.mouseClickCallback();
+    
     if (game.coolDownTimer < 0) {
         reset();
     };
+
+    // If clicked on logo
+    if (event.path.includes(document.querySelector(".logo"))) {
+        reset();
+    }
+
+    // return false -> preventDefault()
     return false;
 }
 
