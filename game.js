@@ -1,7 +1,6 @@
 const DEBUG = false;
-const PRIMARY_COLOR = "#0841ff";
-const SECONDARY_COLOR = "#a5bde8";
-const BG_COLOR = "#f0f6ff";
+const PRIMARY_COLOR = "#2945ff";
+const BG_COLOR = "#f7faff";
 const ANIMATION_SPEED = 8;
 const MARGIN = 100;
 
