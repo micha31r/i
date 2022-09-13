@@ -7,15 +7,16 @@
 
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
 	<link rel="stylesheet" type="text/css" href="normalize.css">
 
 	<style type="text/css">
 		:root {
-			--primary-color: #ff9305;
+			--primary-color: #0841ff;
 		}
 		* {
-			font-family: "Poppins", sans-serif;
+			font-family: "Space Mono", monospace;
 		}
 		canvas {
 			display: flex;
@@ -42,8 +43,8 @@
 		}
 		.ball {
 			display: inline-block;
-			width: 30px;
-			height: 30px;
+			width: 1em;
+			height: 1em;
 			background: var(--primary-color);
 			border-radius: 100%;
 			margin: auto;
@@ -51,6 +52,50 @@
 		#magnet-count {
 			color: var(--primary-color);
 			margin: auto;
+		}
+		.alert {
+			position: fixed;
+			width: 100vw;
+			height: 100vh;
+			background: rgba(0,0,0,0.1);
+			opacity: 0;
+			transition: opacity 0.2s;
+			transition-delay: 3s;
+			pointer-events: none;
+		}
+		.alert div {
+			position: fixed;
+			left: 50%;
+			bottom: calc(60px + 1rem);
+			display: flex;
+			width: max-content;
+			max-width: calc(100vw - 40px);
+			font-size: 1.5em;
+			font-weight: 700;
+			background: #fff;
+			border-radius: 10px;
+			box-sizing: border-box;
+			color: var(--primary-color);
+			padding: 15px;
+			transform: translateX(-50%);
+			pointer-events: none;
+		}
+		.alert span {
+			display: inline-block;
+			text-align: center;
+			margin: auto;
+		}
+		.watermark {
+			position: fixed;
+			bottom: 20px;
+			left: 50%;
+			width: max-content;
+			max-width: calc(100vw - 40px);
+			transform: translateX(-50%);
+			text-align: center;
+			color: var(--primary-color);
+			pointer-events: none;
+			z-index: 100;
 		}
 	</style>
 </head>
@@ -61,5 +106,7 @@
 
 	<div id="timer"></div>
 	<div class="count-container"><span class="ball"></span><h2 id="magnet-count"></h2></div>
+	<div class="alert" id="complete-alert"><div><span></span></div></div>
+	<div class="watermark">Made with ❤ in New Zealand</div>
 </body>
 </html>

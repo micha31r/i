@@ -1,7 +1,7 @@
 const DEBUG = false;
-const PRIMARY_COLOR = "#ff9305";
-const SECONDARY_COLOR = "#cfcac2";
-const BG_COLOR = "#f6f4ec";
+const PRIMARY_COLOR = "#0841ff";
+const SECONDARY_COLOR = "#a5bde8";
+const BG_COLOR = "#f0f6ff";
 
 function randomInt(min, max) {
     return Math.floor(random(min, max+1));
@@ -17,13 +17,18 @@ function onHover(x, y, w, h) {
 class Game {
     constructor() {
         this.state = 0;
-        this.grid = new Grid(this, 9, 9);
+
+        let hCells = 9;
+        if (windowWidth < 450) { hCells = 5; } else
+        if (windowWidth < 600) { hCells = 6; }
+
+        this.grid = new Grid(this, hCells, 9);
         this.grid.bars.forEach(item => {
             item.attract(1);
         });
         this.grid.deactivateMagnets();
 
-        this.initialTimerValue = this.grid.maxMagCount * 2;
+        this.initialTimerValue = this.grid.width * this.grid.height + 5;
         this.timer = this.initialTimerValue;
     }
 
@@ -33,9 +38,10 @@ class Game {
     }
 
     updateTimer() {
-        this.timer -= this.getDt();
-        if (this.timer > 0) {
-            document.querySelector("#timer").style.width = this.timer / this.initialTimerValue * 100 + "%";
+        if (this.state == 0) {
+            this.timer -= this.getDt();
+            let timerWidth = (this.timer > 0) ? this.timer / this.initialTimerValue * 100 + "%" : 0;
+            document.querySelector("#timer").style.width = timerWidth;
         }
     }
 
@@ -157,8 +163,7 @@ class Grid {
         let complete = true;
         this.bars.some(item => {
             if (item.targetRotation) {
-                let difference = Math.abs(item.targetRotation - item.rotation);
-                if (difference == 0 || difference == 4) {
+                if (item.targetRotation == item.rotation) {
                     aligned.push(item);
                 } else {
                     // Break if at least one bar is misaligned
@@ -174,6 +179,8 @@ class Grid {
         let bars = this.checkAlignment();
         if (typeof(bars) === "object") {
             this.game.state = 1;
+            document.querySelector("#complete-alert").style.opacity = 1;
+            document.querySelector("#complete-alert span").textContent = (this.game.timer > 0 ? "Great Job!" : "Too Slow!") + " " + (Math.abs(this.game.timer) + this.game.initialTimerValue).toFixed(2) + "s";
         }
     }
 
@@ -432,7 +439,10 @@ class Bar {
     draw() {
         // Draw target bar
         if (this.targetRotation) {
-            this.drawBar(this.toAngle(this.targetRotation), SECONDARY_COLOR, SECONDARY_COLOR);
+            strokeWeight(2);
+            stroke(PRIMARY_COLOR);
+            this.drawBar(this.toAngle(this.targetRotation), BG_COLOR, BG_COLOR);
+            strokeWeight(0)
         }
 
         // Update angle animation
@@ -460,7 +470,7 @@ class Magnet {
         this.strength = 1;
         this.isActive = Boolean(randomInt(0, 1));
         this.activeRadius = 30;
-        this.inActiveRadius = 10;
+        this.inActiveRadius = 0;
         this.radius = this.inActiveRadius;
 
         if (this.isActive) {
@@ -508,7 +518,7 @@ class Magnet {
             this.grid.nodeSize * this.grid.scale
         )) {
             this.grid.selectedMagnet = this;
-            targetRadius += 10;
+            targetRadius += targetRadius * 0.3 || 20;
             cursor("pointer");
         }
 
@@ -517,9 +527,8 @@ class Magnet {
         this.radius = (Math.abs(d) < 0.01) ? targetRadius : this.radius + d * 0.1;
 
         // Draw magnet
-        this.isActive ? fill(PRIMARY_COLOR) : fill(SECONDARY_COLOR);
+        if (this.radius > 0) fill(PRIMARY_COLOR);
         circle(renderX, renderY, this.radius);
-        fill(BG_COLOR);
 
         if (DEBUG) {
             textAlign(CENTER, CENTER);
@@ -535,11 +544,11 @@ var game;
 function setup() {
     createCanvas(windowWidth, windowHeight);
     rectMode(CENTER);
-    noStroke(); 
     game = new Game();
 }
 
 function draw() {
+    noStroke();
     background(BG_COLOR);
     cursor("auto");
     game.draw();
