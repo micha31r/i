@@ -93,6 +93,7 @@ class Game {
                         activeCount++;
                     }
                 }
+                this.grid.selectedMagnet = null;
                 this.grid.bars.forEach(item => {
                     item.attract(0);
                 });
