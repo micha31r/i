@@ -594,6 +594,7 @@ function touchEnded() {
     if (game.coolDownTimer < 0) {
         reset();
     };
+    return false;
 }
 
 function windowResized() {
