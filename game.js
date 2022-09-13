@@ -589,7 +589,7 @@ function draw() {
     game.updateTimer();
 }
 
-function touchStarted() {
+function touchEnded() {
     game.mouseClickCallback();
     if (game.coolDownTimer < 0) {
         reset();
