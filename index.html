@@ -18,18 +18,22 @@
 			--primary-color: #2945ff;
 			--bg-color: #f7faff;
 		}
+		
 		* {
 			font-family: "Space Mono", monospace;
 			/* Prevent canvas from flashing when tapped on (mobile) */
 			-webkit-tap-highlight-color: transparent;
 		}
+		
 		canvas {
 			display: flex;
 		}
+		
 		h3 {
 			min-width: 1.2em;
 			margin: 0;
 		}
+		
 		#timer {
 			position: fixed;
 			top: 0;
@@ -40,6 +44,7 @@
 			transition: background 0.1s;
 			pointer-events: none;
 		}
+		
 		.logo {
 			position: fixed;
 			top: 20px;
@@ -49,12 +54,15 @@
 			cursor: pointer;
 			z-index: 100;
 		}
+
 		.logo circle {
 			transition: fill 0.5s;
 		}
+
 		.logo:hover circle {
 			fill: var(--primary-color);
 		}
+
 		.count-container {
 			position: fixed;
 			display: grid;
@@ -65,6 +73,7 @@
 			height: 40px;
 			pointer-events: none;
 		}
+
 		.ball {
 			display: inline-block;
 			width: 1em;
@@ -73,11 +82,13 @@
 			border-radius: 100%;
 			margin: auto;
 		}
+
 		#magnet-count {
 			font-weight: 400;
 			color: var(--primary-color);
 			margin: auto;
 		}
+
 		#pop-up {
 			position: fixed;
 			width: 100vw;
@@ -88,6 +99,7 @@
 			pointer-events: none;
 			z-index: 101;
 		}
+
 		#pop-up .container {
 			display: grid;
 			position: fixed;
@@ -98,9 +110,11 @@
 			gap: 20px;
 			padding: 0 20px;
 		}
+
 		#pop-up .container > * {
 			margin: auto;
 		}
+
 		#pop-up #message {
 			display: flex;
 			width: fit-content;
@@ -112,17 +126,27 @@
 			padding: 15px;
 			pointer-events: none;
 		}
+
 		#pop-up span {
 			display: inline-block;
 			text-align: center;
 			margin: auto;
 		}
+
 		#restart-instruction {
 			color: #FFF;
 			opacity: 0;
 			transition: opacity 0.5s;
 		}
-		.watermark {
+
+		@keyframes change-text {
+			0% 	 { content: "Use magnets to align the pointers"; }
+			50%  { content: "Adjacent magnets are stronger"; }
+			100% { content: "Made with ❤ in New Zealand"; }
+		}
+
+		.watermark::after {
+			content: "";
 			position: fixed;
 			bottom: 20px;
 			left: 50%;
@@ -130,6 +154,7 @@
 			max-width: calc(100vw - 40px);
 			transform: translateX(-50%);
 			text-align: center;
+			animation: change-text 9s linear infinite;
 			color: var(--primary-color);
 			pointer-events: none;
 			z-index: 100;
@@ -156,6 +181,6 @@
 		</div>
 	</div>
 	
-	<div class="watermark">Made with ❤ in New Zealand</div>
+	<div class="watermark"></div>
 </body>
 </html>
