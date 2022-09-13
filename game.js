@@ -563,6 +563,7 @@ class Magnet {
 }
 
 function reset() {
+    game.state = 3;
     document.querySelector("#pop-up").style.opacity = 0;
     document.querySelector("#restart-instruction").style.opacity = 0;
     document.querySelector("#timer").style.background = "#000";
