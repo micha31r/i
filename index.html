@@ -31,25 +31,6 @@
 			min-width: 1.2em;
 			margin: 0;
 		}
-		nav {
-			display: flex;
-			position: fixed;
-			width: 100%;
-			box-sizing: border-box;
-			padding: 20px;
-			justify-content: space-between;
-		}
-		.logo {
-			width: 40px;
-			height: 40px;
-			cursor: pointer;
-		}
-		.logo circle {
-			transition: fill 0.5s;
-		}
-		.logo:hover circle {
-			fill: var(--primary-color);
-		}
 		#timer {
 			position: fixed;
 			top: 0;
@@ -60,13 +41,28 @@
 			transition: background 0.1s;
 			pointer-events: none;
 		}
+		.logo {
+			position: fixed;
+			top: 20px;
+			left: 20px;
+			width: 40px;
+			height: 40px;
+			cursor: pointer;
+		}
+		.logo circle {
+			transition: fill 0.5s;
+		}
+		.logo:hover circle {
+			fill: var(--primary-color);
+		}
 		.count-container {
-			/*position: fixed;*/
+			position: fixed;
 			display: grid;
 			grid-template-columns: 1fr auto;
 			gap: 10px;
-			top: 25px;
+			top: 20px;
 			right: 20px;
+			height: 40px;
 			pointer-events: none;
 		}
 		.ball {
@@ -146,10 +142,9 @@
 
 	<div id="timer"></div>
 
-	<nav>
-		<svg class="logo" onclick="reset();" width="181" height="181" viewBox="0 0 181 181" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="5.21688" y="52.8489" width="67.9218" height="174.37" rx="33.9609" transform="rotate(-45 5.21688 52.8489)" fill="#F0F6FF" stroke="#0841FF" stroke-width="6"/><rect x="128.515" y="4.82095" width="67.9218" height="174.37" rx="33.9609" transform="rotate(45 128.515 4.82095)" fill="#F0F6FF" stroke="#0841FF" stroke-width="6"/><circle cx="128.688" cy="52.6754" r="18.6115" transform="rotate(-45 128.688 52.6754)" fill="#F0F6FF" stroke="#0841FF" stroke-width="6"/></svg></div>
-		<div class="count-container"><span class="ball"></span><h3 id="magnet-count"></h3></div>
-	</nav>
+	<svg class="logo" onclick="reset();" width="181" height="181" viewBox="0 0 181 181" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="5.21688" y="52.8489" width="67.9218" height="174.37" rx="33.9609" transform="rotate(-45 5.21688 52.8489)" fill="#F0F6FF" stroke="#0841FF" stroke-width="6"/><rect x="128.515" y="4.82095" width="67.9218" height="174.37" rx="33.9609" transform="rotate(45 128.515 4.82095)" fill="#F0F6FF" stroke="#0841FF" stroke-width="6"/><circle cx="128.688" cy="52.6754" r="18.6115" transform="rotate(-45 128.688 52.6754)" fill="#F0F6FF" stroke="#0841FF" stroke-width="6"/></svg></div>
+
+	<div class="count-container"><span class="ball"></span><h3 id="magnet-count"></h3></div>
 
 	<div id="pop-up">
 		<div class="container">
