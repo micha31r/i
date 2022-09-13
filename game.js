@@ -29,6 +29,7 @@ class Game {
             item.attract(1);
         });
         this.grid.deactivateMagnets();
+        this.resize();
 
         this.initialTimerValue = this.grid.width * this.grid.height;
         this.timer = this.initialTimerValue;
@@ -131,8 +132,6 @@ class Grid {
         this.scale = 1;
         this.targetScale = this.scale;
 
-        this.calcScale();
-        this.calcOffset();
         this.populate();
 
         // Make ~50% of all nodes magnets
