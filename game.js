@@ -597,7 +597,8 @@ function touchEnded(event) {
     };
 
     // If clicked on logo
-    if (event.path.includes(document.querySelector(".logo"))) {
+    let target = document.querySelector(".logo");
+    if (event.srcElement == target || event.srcElement.parentNode == target) {
         reset();
     }
 
