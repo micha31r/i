@@ -64,9 +64,9 @@ class Game {
         
         } else if (this.state == 1) {
             this.coolDownTimer -= dt;
-            if (this.coolDownTimer < 0){
-                cursor("pointer");
-                document.querySelector("#restart-instruction").style.opacity = 1;
+            let elem = document.querySelector("#restart-instruction");
+            if (this.coolDownTimer < 0 && elem.style.opacity == 0){
+                elem.style.opacity = 1;
             };
         }
         elem.style.width = timerWidth;
