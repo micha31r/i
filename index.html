@@ -31,7 +31,9 @@
 			left: 0;
 			width: 100%;
 			height: 10px;
-			background: var(--primary-color);
+			background: #000;
+			transition: background 0.1s;
+			pointer-events: none;
 		}
 		.count-container {
 			position: fixed;
@@ -40,6 +42,7 @@
 			gap: 10px;
 			top: 30px;
 			right: 20px;
+			pointer-events: none;
 		}
 		.ball {
 			display: inline-block;
@@ -53,23 +56,30 @@
 			color: var(--primary-color);
 			margin: auto;
 		}
-		.alert {
+		#pop-up {
 			position: fixed;
+			display: flex;
 			width: 100vw;
 			height: 100vh;
-			background: rgba(0,0,0,0.1);
+			background: rgba(0,0,0,0.2);
 			opacity: 0;
-			transition: opacity 0.2s;
-			transition-delay: 3s;
+			transition: opacity 0.5s;
 			pointer-events: none;
 		}
-		.alert div {
-			position: fixed;
-			left: 50%;
-			bottom: calc(60px + 1rem);
+		#pop-up .container {
+			display: grid;
+			width: 100%;
+			gap: 20px;
+			padding: 0 20px calc(20px * 2 + 1rem);
+			margin-top: auto;
+		}
+		#pop-up .container > * {
+			margin: auto;
+		}
+		#pop-up #message {
 			display: flex;
 			width: max-content;
-			max-width: calc(100vw - 40px);
+			max-width: 100%;
 			font-size: 1.5em;
 			font-weight: 700;
 			background: #fff;
@@ -77,13 +87,17 @@
 			box-sizing: border-box;
 			color: var(--primary-color);
 			padding: 15px;
-			transform: translateX(-50%);
 			pointer-events: none;
 		}
-		.alert span {
+		#pop-up span {
 			display: inline-block;
 			text-align: center;
 			margin: auto;
+		}
+		#restart-instruction {
+			color: #FFF;
+			opacity: 0;
+			transition: opacity 0.5s;
 		}
 		.watermark {
 			position: fixed;
@@ -106,7 +120,14 @@
 
 	<div id="timer"></div>
 	<div class="count-container"><span class="ball"></span><h2 id="magnet-count"></h2></div>
-	<div class="alert" id="complete-alert"><div><span></span></div></div>
+	<div id="pop-up">
+		<div class="container">
+			<div id="restart-instruction">Click To Restart</div>
+			<div id="message">
+				<span></span>
+			</div>
+		</div>
+	</div>
 	<div class="watermark">Made with ❤ in New Zealand</div>
 </body>
 </html>

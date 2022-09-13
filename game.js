@@ -16,7 +16,7 @@ function onHover(x, y, w, h) {
 
 class Game {
     constructor() {
-        this.state = 0;
+        this.state = -1;
 
         let hCells = 9;
         if (windowWidth < 450) { hCells = 5; } else
@@ -28,8 +28,13 @@ class Game {
         });
         this.grid.deactivateMagnets();
 
-        this.initialTimerValue = this.grid.width * this.grid.height + 5;
+        this.initialTimerValue = this.grid.width * this.grid.height;
         this.timer = this.initialTimerValue;
+
+        this.maxPreTimerValue = 5;
+        this.preTimer = 0;
+
+        this.coolDownTimer = 6;
     }
 
     getDt() {
@@ -38,11 +43,30 @@ class Game {
     }
 
     updateTimer() {
-        if (this.state == 0) {
-            this.timer -= this.getDt();
-            let timerWidth = (this.timer > 0) ? this.timer / this.initialTimerValue * 100 + "%" : 0;
-            document.querySelector("#timer").style.width = timerWidth;
+        let timerWidth;
+        let elem = document.querySelector("#timer");
+        let dt = this.getDt();
+        if (this.state == -1) {
+            this.preTimer += dt;
+            timerWidth = this.preTimer / this.maxPreTimerValue * 100 + "%";
+            if (this.preTimer >= this.maxPreTimerValue) {
+                timerWidth = "100%";
+                this.state = 0;
+                elem.style.background = PRIMARY_COLOR;
+            }
+
+        } else if (this.state == 0) {
+            this.timer -= dt;
+            timerWidth = (this.timer > 0) ? this.timer / this.initialTimerValue * 100 + "%" : 0;
+        
+        } else if (this.state == 1) {
+            this.coolDownTimer -= dt;
+            if (this.coolDownTimer < 0){
+                cursor("pointer");
+                document.querySelector("#restart-instruction").style.opacity = 1;
+            };
         }
+        elem.style.width = timerWidth;
     }
 
     mouseClickCallback() {
@@ -179,8 +203,10 @@ class Grid {
         let bars = this.checkAlignment();
         if (typeof(bars) === "object") {
             this.game.state = 1;
-            document.querySelector("#complete-alert").style.opacity = 1;
-            document.querySelector("#complete-alert span").textContent = (this.game.timer > 0 ? "Great Job!" : "Too Slow!") + " " + (Math.abs(this.game.timer) + this.game.initialTimerValue).toFixed(2) + "s";
+            setTimeout(() => {
+                document.querySelector("#pop-up").style.opacity = 1;
+                document.querySelector("#pop-up #message span").textContent = (this.game.timer > 0 ? "Great Job!" : "Too Slow!") + " " + (this.game.initialTimerValue - this.game.timer).toFixed(2) + "s";
+            }, 3000);
         }
     }
 
@@ -511,7 +537,7 @@ class Magnet {
         let gridCenterOffset = this.grid.nodeSize/2;
         let targetRadius = this.isActive ? this.activeRadius : this.inActiveRadius;
 
-        if (onHover(
+        if (this.game.state == 0 && onHover(
             renderX * this.grid.scale + this.grid.offsetX - gridCenterOffset,
             renderY * this.grid.scale + this.grid.offsetY - gridCenterOffset,
             this.grid.nodeSize * this.grid.scale,
@@ -537,6 +563,15 @@ class Magnet {
     }
 }
 
+function reset() {
+    document.querySelector("#pop-up").style.opacity = 0;
+    document.querySelector("#restart-instruction").style.opacity = 0;
+    document.querySelector("#timer").style.background = "#000";
+    setTimeout(function() {
+        game = new Game();
+    }, 500);
+}
+
 // Game Loop
 
 var game;
@@ -557,6 +592,9 @@ function draw() {
 
 function mouseClicked() {
     game.mouseClickCallback();
+    if (game.coolDownTimer < 0) {
+        reset();
+    };
 }
 
 function windowResized() {
