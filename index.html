@@ -80,7 +80,6 @@
 		}
 		#pop-up {
 			position: fixed;
-			display: flex;
 			width: 100vw;
 			height: 100vh;
 			background: rgba(0,0,0,0.2);
@@ -90,18 +89,20 @@
 		}
 		#pop-up .container {
 			display: grid;
-			width: 100%;
+			position: fixed;
+			left: 50%;
+			transform: translateX(-50%);
+			bottom: calc(40px * 2 + 1rem);
+			width: 100vw;
 			gap: 20px;
-			padding: 0 20px calc(20px * 2 + 1rem);
-			margin-top: auto;
+			padding: 0 20px;
 		}
 		#pop-up .container > * {
 			margin: auto;
 		}
 		#pop-up #message {
 			display: flex;
-			width: max-content;
-			max-width: 100%;
+			width: fit-content;
 			font-size: 1.5em;
 			font-weight: 700;
 			background: #fff;
